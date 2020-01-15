@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "the-chart-to-rule-them-all.fullname" . }}
+  labels:
+    {{- include "the-chart-to-rule-them-all.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "the-chart-to-rule-them-all.selectorLabels" . | nindent 4 }}
