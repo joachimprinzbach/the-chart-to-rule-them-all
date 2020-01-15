@@ -1,0 +1,32 @@
+{{- if .Values.route.enabled -}}
+  {{- $defaultUrl := printf "%s.%s" .Release.Name $.Values.route.defaultDomain -}}
+  {{- $routePath := .Values.route.path -}}
+  {{- $host := .Values.route.host -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  {{- if .Values.route.letsencrypt }}
+annotations:
+  kubernetes.io/tls-acme: "true"
+  {{- end }}
+labels:
+  app: {{ template "appname" . }}
+  chart: "{{ .Chart.Name }}-{{ .Chart.Version| replace "+" "_" }}"
+  release: {{ .Release.Name }}
+  heritage: {{ .Release.Service }}
+name: {{ template "fullname" . }}
+spec:
+  host: {{ default $defaultUrl $host }}
+  path: {{ $routePath }}
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: {{ template "fullname" . }}
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+    - routerName: router
+{{- end }}
